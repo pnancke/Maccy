@@ -6,8 +6,6 @@ class Keys {
     Key.pageUp,
     Key.pageDown,
     Key.end,
-    Key.leftArrow,
-    Key.rightArrow,
     Key.escape,
     Key.tab,
     Key.f1,

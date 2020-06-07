@@ -35,7 +35,7 @@ extension UserDefaults {
     static let popupPosition = "cursor"
     static let showInStatusBar = true
     static let size = 200
-    static let maxMenuItems = 200
+    static let maxMenuItems = 10
     static let sortBy = "lastCopiedAt"
     static let storage: [HistoryItemOld] = []
   }

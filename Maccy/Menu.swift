@@ -2,7 +2,7 @@ import AppKit
 
 // Custom menu supporting "search-as-you-type" based on https://github.com/mikekazakov/MGKMenuWithFilter.
 class Menu: NSMenu, NSMenuDelegate {
-  public let maxHotKey = 9
+  public let maxHotKey = 10
   public let menuWidth = 300
 
   private let search = Search()
@@ -64,12 +64,18 @@ class Menu: NSMenu, NSMenuDelegate {
   func clearUnpinned() {
     clear(historyItems.filter({ !$0.isPinned }))
   }
-
-  func updateFilter(filter: String) {
-    let results = Array(search.search(string: filter, within: historyItems).prefix(UserDefaults.standard.maxMenuItems * 2))
-
-    // First, remove items that don't match search.
-    for item in historyItems {
+    
+    func updateFilter(filter: String) {
+        let rawResults = Array(search.search(string: filter, within: historyItems))
+        if FilterMenuItemView.OffsetState.offset > rawResults.count - 1 {
+            FilterMenuItemView.OffsetState.offset -= UserDefaults.standard.maxMenuItems
+        }
+        print(rawResults.count)
+        print(FilterMenuItemView.OffsetState.offset)
+        let results = Array(rawResults[FilterMenuItemView.OffsetState.offset...rawResults.count - 1].prefix(UserDefaults.standard.maxMenuItems * 2))
+        
+        // First, remove items that don't match search.
+        for item in historyItems {
       if items.contains(item) && !results.contains(item) {
         removeItem(item)
       }
@@ -197,12 +203,18 @@ class Menu: NSMenu, NSMenuDelegate {
     // Both main and alternate item should have the same key equivalent.
     var hotKey = 1
     for item in items where hotKey <= maxHotKey && !item.isPinned {
-      item.keyEquivalent = String(hotKey)
-      if item.isAlternate {
-        hotKey += 1
-      }
+        if(hotKey == 10){
+            item.keyEquivalent = String(0)
+            if item.isAlternate {
+                hotKey += 1
+            }
+        } else {
+            item.keyEquivalent = String(hotKey)
+            if item.isAlternate {
+                hotKey += 1
+            }
+        }}
     }
-  }
 
   private func prependHistoryItems(_ firstItem: HistoryMenuItem, _ secondItem: HistoryMenuItem) {
     historyItems.insert(contentsOf: [firstItem, secondItem], at: 0)

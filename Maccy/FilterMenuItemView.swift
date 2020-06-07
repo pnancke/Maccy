@@ -22,8 +22,12 @@ class FilterMenuItemView: NSView, NSTextFieldDelegate {
       constraints.append("V:|-(==3)-[titleField]-(==3)-|")
     }
     return constraints
+    }
+    
+  struct OffsetState {
+    static var offset = 0
   }
-
+    
   private var eventHandler: EventHandlerRef?
 
   lazy private var titleField: NSTextField = { [unowned self] in
@@ -200,10 +204,22 @@ class FilterMenuItemView: NSView, NSTextFieldDelegate {
         customMenu?.pinOrUnpin()
         queryField.stringValue = "" // clear search field just in case
         return true
-      }
+        }
     case Key.return, Key.keypadEnter, Key.upArrow, Key.downArrow:
-      processSelectionKey(menu: customMenu, key: key, modifierFlags: modifierFlags)
-      return true
+        processSelectionKey(menu: customMenu, key: key, modifierFlags: modifierFlags)
+        return true
+    case Key.rightArrow:
+        FilterMenuItemView.OffsetState.offset += UserDefaults.standard.maxMenuItems
+        fireNotification()
+        return true
+    case Key.leftArrow:
+        if UserDefaults.standard.maxMenuItems >= FilterMenuItemView.OffsetState.offset {
+            FilterMenuItemView.OffsetState.offset = 0
+        } else {
+            FilterMenuItemView.OffsetState.offset -= UserDefaults.standard.maxMenuItems
+        }
+        fireNotification()
+        return true
     case GlobalHotKey.key:
       if modifierFlags == GlobalHotKey.modifierFlags {
         customMenu?.cancelTracking()
