@@ -159,6 +159,7 @@ class FilterMenuItemView: NSView, NSTextFieldDelegate {
     }
 
     queryField.stringValue = newQuery
+    FilterMenuItemView.OffsetState.offset = 0
     fireNotification()
   }
 

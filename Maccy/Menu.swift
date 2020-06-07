@@ -65,17 +65,21 @@ class Menu: NSMenu, NSMenuDelegate {
     clear(historyItems.filter({ !$0.isPinned }))
   }
     
-    func updateFilter(filter: String) {
-        let rawResults = Array(search.search(string: filter, within: historyItems))
-        if FilterMenuItemView.OffsetState.offset > rawResults.count - 1 {
-            FilterMenuItemView.OffsetState.offset -= UserDefaults.standard.maxMenuItems
-        }
-        print(rawResults.count)
-        print(FilterMenuItemView.OffsetState.offset)
-        let results = Array(rawResults[FilterMenuItemView.OffsetState.offset...rawResults.count - 1].prefix(UserDefaults.standard.maxMenuItems * 2))
-        
-        // First, remove items that don't match search.
-        for item in historyItems {
+  func updateFilter(filter: String) {
+    let rawResults = Array(search.search(string: filter, within: historyItems))
+    if FilterMenuItemView.OffsetState.offset > rawResults.count - 1
+      || FilterMenuItemView.OffsetState.offset - UserDefaults.standard.maxMenuItems > 0 {
+      FilterMenuItemView.OffsetState.offset -= UserDefaults.standard.maxMenuItems
+    }
+    let results : Array<HistoryMenuItem>
+    if rawResults.isEmpty {
+      results = []
+    } else {
+      results = Array(rawResults[FilterMenuItemView.OffsetState.offset...rawResults.count - 1].prefix(UserDefaults.standard.maxMenuItems * 2))
+    }
+    
+    //First, remove items that don't match search.
+    for item in historyItems {
       if items.contains(item) && !results.contains(item) {
         removeItem(item)
       }

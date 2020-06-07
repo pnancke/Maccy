@@ -71,6 +71,19 @@ class HistoryTests: XCTestCase {
     XCTAssertFalse(history.all.contains(items[0]))
   }
 
+  func testPaginationWorks() {
+    var items: [HistoryItem] = []
+    for index in 0...20 {
+      let item = historyItem(String(index))
+      items.append(item)
+      history.add(item)
+    }
+
+    XCTAssertEqual(history.all.count, 10)
+    XCTAssertTrue(history.all.contains(items[20]))
+    XCTAssertFalse(history.all.contains(items[10]))
+  }
+
   func testMaxSizeIgnoresPinned() {
     var items: [HistoryItem] = []
 
