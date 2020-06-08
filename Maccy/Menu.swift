@@ -36,7 +36,7 @@ class Menu: NSMenu, NSMenuDelegate {
 
   func buildItems(_ allItems: [HistoryItem]) {
     clearAll()
-    let menuSizeLimit = items.count + UserDefaults.standard.maxMenuItems * 2
+    let menuSizeLimit = items.count + UserDefaults.standard.maxMenuItems
     for item in Sorter(by: UserDefaults.standard.sortBy).sort(allItems) {
       let copyHistoryItem = HistoryMenuItem(item: item, onSelected: copy(_:))
       let pasteHistoryItem = HistoryMenuItem(item: item, onSelected: copyAndPaste(_:))
@@ -49,7 +49,7 @@ class Menu: NSMenu, NSMenuDelegate {
         prependHistoryItems(copyHistoryItem, pasteHistoryItem)
       }
     }
-    
+
     for historyItem in historyItems.reversed() {
         if items.count > menuSizeLimit {
             removeItem(historyItem)
@@ -67,15 +67,28 @@ class Menu: NSMenu, NSMenuDelegate {
     
   func updateFilter(filter: String) {
     let rawResults = Array(search.search(string: filter, within: historyItems))
-    if FilterMenuItemView.OffsetState.offset > rawResults.count - 1
-      || FilterMenuItemView.OffsetState.offset - UserDefaults.standard.maxMenuItems > 0 {
+    if FilterMenuItemView.OffsetState.offset >= rawResults.count - 1 {
       FilterMenuItemView.OffsetState.offset -= UserDefaults.standard.maxMenuItems
     }
     let results : Array<HistoryMenuItem>
+    let offsetRightEndIndex: Int
+    let offsetMaxRightEndIndex = FilterMenuItemView.OffsetState.offset + UserDefaults.standard.maxMenuItems
+    if(offsetMaxRightEndIndex > rawResults.count) {
+      offsetRightEndIndex = rawResults.count - 1
+    } else {
+      offsetRightEndIndex = offsetMaxRightEndIndex - 1
+    }
+    let offsetLeftEndIndex: Int
+    if FilterMenuItemView.OffsetState.offset <= 0 {
+      offsetLeftEndIndex = 0
+    } else {
+      offsetLeftEndIndex = FilterMenuItemView.OffsetState.offset
+    }
+
     if rawResults.isEmpty {
       results = []
     } else {
-      results = Array(rawResults[FilterMenuItemView.OffsetState.offset...rawResults.count - 1].prefix(UserDefaults.standard.maxMenuItems * 2))
+      results = Array(rawResults[offsetLeftEndIndex...offsetRightEndIndex])
     }
     
     //First, remove items that don't match search.
